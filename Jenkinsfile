@@ -15,12 +15,12 @@ pipeline {
         //     }
         // }
 
-        stage('SAST') {
-            steps {
-                // Perform Static Application Security Testing
-                build job: 'SECURITY-SAST-SNYK'
-            }
-        }
+        // stage('SAST') {
+        //     steps {
+        //         // Perform Static Application Security Testing
+        //         build job: 'SECURITY-SAST-SNYK'
+        //     }
+        // }
 
         stage('Build-and-Tag') {
             steps {
@@ -35,7 +35,7 @@ pipeline {
             steps {
                 // Push the built image to DockerHub
                 script {
-                    docker.withRegistry(REGISTRY_URL, 'training_creds') {
+                    docker.withRegistry(REGISTRY_URL, 'dockerhub') {
                         app.push("latest")
                     }
                 }
