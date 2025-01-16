@@ -26,11 +26,12 @@ pipeline {
     	stage('Build Docker Image') {
 			steps {
 				//"docker build -t in28min/currency-exchange-devops:$env.BUILD_TAG"
-					dockerImage = docker.build("${DOCKER_IMAGE}")
-				// script {
+					// dockerImage = docker.build("${DOCKER_IMAGE}")
+				script {
 				// 	dockerImage = docker.build("dnkalra/java-currency:${env.BUILD_TAG}")
+                    dockerImage = docker.build("${DOCKER_IMAGE}")
 
-				// }
+				}
             }
         }
         // stage('Build-and-Tag') {
