@@ -22,48 +22,59 @@ pipeline {
         //     }
         // }
 
-        stage('Build-and-Tag') {
-            steps {
-                // This builds the actual image; synonymous to "docker build"
-                script {
-                    app = docker.build("${DOCKER_IMAGE}")
-                }
-            }
-        }
 
-        stage('Post-to-DockerHub') {
-            steps {
-                // Push the built image to DockerHub
-                script {
-                    docker.withRegistry(REGISTRY_URL, 'dockerhub') {
-                        app.push("latest")
-                    }
-                }
-            }
-        }
+    	stage('Build Docker Image') {
+			steps {
+				//"docker build -t in28min/currency-exchange-devops:$env.BUILD_TAG"
+					dockerImage = docker.build("${DOCKER_IMAGE}")
+				// script {
+				// 	dockerImage = docker.build("dnkalra/java-currency:${env.BUILD_TAG}")
 
-        stage('SECURITY-IMAGE-SCANNER') {
-            steps {
-                // Perform image security scanning
-                build job: 'SECURITY-IMAGE-SCANNER-AQUAMICROSCANNER'
+				// }
             }
         }
+        // stage('Build-and-Tag') {
+        //     steps {
+        //         // This builds the actual image; synonymous to "docker build"
+        //         script {
+        //             app = docker.build("${DOCKER_IMAGE}")
+        //         }
+        //     }
+        // }
 
-        stage('Pull-Image-Server') {
-            steps {
-                // Use Docker Compose to bring down and up the containers
-                script {
-                    sh "docker-compose down"
-                    sh "docker-compose up -d"
-                }
-            }
-        }
+        // stage('Post-to-DockerHub') {
+        //     steps {
+        //         // Push the built image to DockerHub
+        //         script {
+        //             docker.withRegistry(REGISTRY_URL, 'dockerhub') {
+        //                 app.push("latest")
+        //             }
+        //         }
+        //     }
+        // }
 
-        stage('DAST') {
-            steps {
-                // Perform Dynamic Application Security Testing
-                build job: 'SECURITY-DAST-OWASP_ZAP'
-            }
-        }
+        // stage('SECURITY-IMAGE-SCANNER') {
+        //     steps {
+        //         // Perform image security scanning
+        //         build job: 'SECURITY-IMAGE-SCANNER-AQUAMICROSCANNER'
+        //     }
+        // }
+
+        // stage('Pull-Image-Server') {
+        //     steps {
+        //         // Use Docker Compose to bring down and up the containers
+        //         script {
+        //             sh "docker-compose down"
+        //             sh "docker-compose up -d"
+        //         }
+        //     }
+        // }
+
+        // stage('DAST') {
+        //     steps {
+        //         // Perform Dynamic Application Security Testing
+        //         build job: 'SECURITY-DAST-OWASP_ZAP'
+        //     }
+        // }
     }
 }
