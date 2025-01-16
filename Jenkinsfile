@@ -1,4 +1,4 @@
-node ('Build-in Node'){  
+node ('Built-in Node'){  
     def app
     stage('Cloning Git') {
         /* Let's make sure we have the repository cloned to our workspace */
@@ -12,7 +12,7 @@ node ('Build-in Node'){
     stage('Build-and-Tag') {
     /* This builds the actual image; synonymous to
          * docker build on the command line */
-        app = docker.build("amrit96/snake")
+        app = docker.build("dnkalra/mygame")
     }
     stage('Post-to-dockerhub') {
     
