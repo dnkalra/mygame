@@ -1,43 +1,69 @@
 pipeline {
-    agent any 
+    agent any
+
+    environment {
+        // You can set environment variables here, if needed
+        REGISTRY_URL = 'https://registry.hub.docker.com'
+        DOCKER_IMAGE = 'dnkalra/mygame'
+    }
+
     stages {
         stage('Cloning Git') {
-            /* Let's make sure we have the repository cloned to our workspace */
-        checkout scm
-        }  
-        stage('SAST'){
-            build 'SECURITY-SAST-SNYK'
+            steps {
+                // Let's make sure we have the repository cloned to our workspace
+                checkout scm
+            }
         }
 
-        
+        stage('SAST') {
+            steps {
+                // Perform Static Application Security Testing
+                build job: 'SECURITY-SAST-SNYK'
+            }
+        }
+
         stage('Build-and-Tag') {
-        /* This builds the actual image; synonymous to
-            * docker build on the command line */
-            app = docker.build("dnkalra/mygame")
-        }
-        stage('Post-to-dockerhub') {
-        
-        docker.withRegistry('https://registry.hub.docker.com', 'training_creds') {
-                app.push("latest")
-                        }
+            steps {
+                // This builds the actual image; synonymous to "docker build"
+                script {
+                    app = docker.build("${DOCKER_IMAGE}")
+                }
             }
-        stage('SECURITY-IMAGE-SCANNER'){
-            build 'SECURITY-IMAGE-SCANNER-AQUAMICROSCANNER'
         }
-    
-        
-        stage('Pull-image-server') {
-        
-            sh "docker-compose down"
-            sh "docker-compose up -d"	
-        }
-        
-        stage('DAST')
-            {
-            build 'SECURITY-DAST-OWASP_ZAP'
+
+        stage('Post-to-DockerHub') {
+            steps {
+                // Push the built image to DockerHub
+                script {
+                    docker.withRegistry(REGISTRY_URL, 'training_creds') {
+                        app.push("latest")
+                    }
+                }
             }
+        }
 
+        stage('SECURITY-IMAGE-SCANNER') {
+            steps {
+                // Perform image security scanning
+                build job: 'SECURITY-IMAGE-SCANNER-AQUAMICROSCANNER'
+            }
+        }
 
+        stage('Pull-Image-Server') {
+            steps {
+                // Use Docker Compose to bring down and up the containers
+                script {
+                    sh "docker-compose down"
+                    sh "docker-compose up -d"
+                }
+            }
+        }
+
+        stage('DAST') {
+            steps {
+                // Perform Dynamic Application Security Testing
+                build job: 'SECURITY-DAST-OWASP_ZAP'
+            }
+        }
     }
- 
 }
